@@ -1,3 +1,5 @@
+"""Result models for circle fitting algorithms."""
+
 from dataclasses import dataclass
 from typing import Any
 
