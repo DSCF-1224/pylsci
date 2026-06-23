@@ -6,7 +6,10 @@ from pytensor.tensor import TensorVariable
 from .result import Center, FittedCircle
 
 
-def _construct_normal_equation(x: TensorVariable, y: TensorVariable) -> tuple[TensorVariable, TensorVariable]:
+def _construct_normal_equation(
+    x: TensorVariable,
+    y: TensorVariable
+) -> tuple[TensorVariable, TensorVariable]:
     """
     Construct the normal equation for LSCI fitting.
 
