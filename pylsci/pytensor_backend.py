@@ -6,9 +6,9 @@ from pytensor.tensor import TensorVariable
 from .result import Center, FittedCircle
 
 
-def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
+def _construct_normal_equation(x: TensorVariable, y: TensorVariable) -> tuple[TensorVariable, TensorVariable]:
     """
-    Fit a least-squares reference circle (LSCI) from a set of points.
+    Construct the normal equation for LSCI fitting.
 
     Parameters
     ----------
@@ -19,13 +19,8 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
 
     Returns
     -------
-    FittedCircle
-        Fitted circle and evaluated roundness.
-
-    Notes
-    -----
-    No explicit shape validation.
-    Shape compatibility is checked by PyTensor during graph execution.
+    tuple[TensorVariable, TensorVariable]
+        Normal-equation matrix and right-hand-side vector.
     """
 
     x2 = x * x
@@ -50,6 +45,33 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
     )
 
     vector = pt.stack([pt.sum(x * r2), pt.sum(y * r2), pt.sum(r2)])
+
+    return matrix, vector
+
+
+def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
+    """
+    Fit a least-squares reference circle (LSCI) from a set of points.
+
+    Parameters
+    ----------
+    x
+        X coordinates.
+    y
+        Y coordinates.
+
+    Returns
+    -------
+    FittedCircle
+        Fitted circle and evaluated roundness.
+
+    Notes
+    -----
+    No explicit shape validation.
+    Shape compatibility is checked by PyTensor during graph execution.
+    """
+
+    matrix, vector = _construct_normal_equation(x, y)
 
     solution = pt.linalg.solve(matrix, vector)
 
