@@ -1,17 +1,21 @@
 """Tests for the PyTensor backend."""
 
 import numpy as np
+import pytest
 
 from pytensor import tensor as pt
 
 from pylsci.pytensor_backend import fit as fit_lsci
 
 
-def test_fit_unit_circle():
+@pytest.mark.parametrize("n", range(4, 361))
+def test_fit_unit_circle(n):
     """Fit points on a unit circle."""
 
-    x = pt.stack([1.0, 0.0, -1.0, 0.0])
-    y = pt.stack([0.0, 1.0, 0.0, -1.0])
+    theta = 2 * np.pi * pt.arange(n) / float(n)
+
+    x = pt.cos(theta)
+    y = pt.sin(theta)
 
     result = fit_lsci(x, y)
 
