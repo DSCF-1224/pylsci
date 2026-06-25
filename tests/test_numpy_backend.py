@@ -31,3 +31,9 @@ def test_mismatched_length():
             np.array([1.0, 0.0, -1.0, 0.0]),
             np.array([0.0, 1.0, 0.0])
         )
+
+    with pytest.raises(ValueError):
+        fit_lsci(
+            np.array([0.0, 1.0, 0.0]),
+            np.array([1.0, 0.0, -1.0, 0.0])
+        )
