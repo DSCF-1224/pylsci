@@ -26,6 +26,8 @@ def test_fit_unit_circle(n):
 
 
 def test_mismatched_length():
+    """Reject points with mismatched coordinate lengths."""
+
     with pytest.raises(ValueError):
         fit_lsci(
             pt.as_tensor([1.0, 0.0, -1.0, 0.0]),
