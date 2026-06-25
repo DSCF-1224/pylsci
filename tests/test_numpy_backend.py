@@ -21,3 +21,11 @@ def test_fit_unit_circle(n):
     assert np.isclose(result.center.x, 0.0)
     assert np.isclose(result.center.y, 0.0)
     assert np.isclose(result.roundness, 0.0)
+
+
+def test_mismatched_length():
+    with pytest.raises(ValueError):
+        fit_lsci(
+            np.array([1.0, 0.0, -1.0, 0.0]),
+            np.array([0.0, 1.0, 0.0])
+        )
