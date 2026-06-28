@@ -32,7 +32,7 @@ def test_fit_random_circle(seed):
     assert np.isclose(result.roundness.eval(), 0.0)
 
 
-@pytest.mark.parametrize("n", range(4, 361))
+@pytest.mark.parametrize("n", range(3, 361))
 def test_fit_unit_circle(n):
     """Fit points on a unit circle."""
 
