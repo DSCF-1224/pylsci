@@ -37,3 +37,13 @@ def test_mismatched_length():
             np.array([0.0, 1.0, 0.0]),
             np.array([1.0, 0.0, -1.0, 0.0])
         )
+
+
+def test_requires_at_least_three_points():
+    """Reject fewer than three points."""
+
+    with pytest.raises(ValueError):
+        fit_lsci(
+            np.array([1.0, 0.0]),
+            np.array([0.0, 1.0])
+        )

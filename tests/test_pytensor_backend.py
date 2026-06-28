@@ -39,3 +39,13 @@ def test_mismatched_length():
             pt.as_tensor([0.0, 1.0, 0.0]),
             pt.as_tensor([1.0, 0.0, -1.0, 0.0])
         )
+
+
+def test_requires_at_least_three_points():
+    """Reject fewer than three points."""
+
+    with pytest.raises(ValueError):
+        fit_lsci(
+            pt.as_tensor([1.0, 0.0]),
+            pt.as_tensor([0.0, 1.0])
+        )
