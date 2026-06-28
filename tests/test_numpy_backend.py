@@ -6,6 +6,30 @@ import pytest
 from pylsci.numpy_backend import fit as fit_lsci
 
 
+@pytest.mark.parametrize("seed", range(0, 10))
+def test_fit_random_circle(seed):
+    """Fit points on a circle with a random center and radius."""
+
+    rng = np.random.default_rng(seed)
+
+    x = rng.uniform(low=-1.0, high=1.0)
+    y = rng.uniform(low=-1.0, high=1.0)
+    r = 10 ** rng.uniform(low=-1.0, high=1.0)
+    n = rng.integers(low=4, high=361)
+
+    theta = 2 * np.pi * np.arange(n) / n
+
+    result = fit_lsci(
+        x=x + r * np.cos(theta),
+        y=y + r * np.sin(theta)
+    )
+
+    assert np.isclose(result.radius, r)
+    assert np.isclose(result.center.x, x)
+    assert np.isclose(result.center.y, y)
+    assert np.isclose(result.roundness, 0.0)
+
+
 @pytest.mark.parametrize("n", range(4, 361))
 def test_fit_unit_circle(n):
     """Fit points on a unit circle."""
