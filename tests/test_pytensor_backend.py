@@ -21,15 +21,27 @@ def test_fit_random_circle(seed):
 
     theta = 2 * np.pi * pt.arange(n) / float(n)
 
+    cos_theta = pt.cos(theta)
+    sin_theta = pt.sin(theta)
+
     result = fit_lsci(
-        x=x + r * pt.cos(theta),
-        y=y + r * pt.sin(theta)
+        x=x + r * cos_theta,
+        y=y + r * sin_theta
     )
 
     assert np.isclose(result.radius.eval(), r)
     assert np.isclose(result.center.x.eval(), x)
     assert np.isclose(result.center.y.eval(), y)
     assert np.isclose(result.roundness.eval(), 0.0)
+
+    result = fit_lsci(
+        x=x + r * cos_theta
+        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
+        y=y + r * sin_theta
+        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
+    )
+
+    assert result.roundness.eval() > 0.0
 
 
 @pytest.mark.parametrize("n", range(3, 361))

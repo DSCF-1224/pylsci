@@ -29,6 +29,14 @@ def test_fit_random_circle(seed):
     assert np.isclose(result.center.y, y)
     assert np.isclose(result.roundness, 0.0)
 
+    result = fit_lsci(
+        x=x + r * np.cos(theta)
+        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
+        y=y + r * np.sin(theta)
+        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
+    )
+    assert result.roundness > 0.0
+
 
 @pytest.mark.parametrize("n", range(3, 361))
 def test_fit_unit_circle(n):
