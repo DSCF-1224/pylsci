@@ -70,9 +70,21 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
 
     Notes
     -----
-    No explicit shape validation.
-    Shape compatibility is checked by PyTensor during graph execution.
+    When input lengths are statically known, mismatched lengths and fewer than
+    three points raise ``ValueError`` immediately. Otherwise, shape compatibility
+    is checked by PyTensor during graph execution.
     """
+
+    size_x = x.type.shape[0]
+    size_y = y.type.shape[0]
+
+    if (size_x is not None) and (size_y is not None):
+
+        if size_x != size_y:
+            raise ValueError("x and y must have the same length")
+
+        if size_x < 3:
+            raise ValueError("at least 3 points are required")
 
     matrix, vector = _construct_normal_equation(x, y)
 
