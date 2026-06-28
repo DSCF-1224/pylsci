@@ -11,6 +11,10 @@ class Center:
     x: Any
     y: Any
 
+    def sum_of_squares(self) -> Any:
+        """Return x^2 + y^2."""
+        return (self.x * self.x) + (self.y * self.y)
+
 
 @dataclass(frozen=True)
 class FittedCircle:

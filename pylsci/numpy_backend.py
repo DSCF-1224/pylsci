@@ -88,9 +88,6 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
 
     center_offset = Center(x=0.5 * solution[0], y=0.5 * solution[1])
 
-    center_offset_r2 = (center_offset.x * center_offset.x) + \
-        (center_offset.y * center_offset.y)
-
     dx = x_offset - center_offset.x
     dy = y_offset - center_offset.y
     dr = np.sqrt((dx * dx) + (dy * dy))
@@ -98,6 +95,6 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     return FittedCircle(
         center=Center(x=center_offset.x + centroid.x,
                       y=center_offset.y + centroid.y),
-        radius=np.sqrt(center_offset_r2 + solution[2]),
+        radius=np.sqrt(center_offset.sum_of_squares() + solution[2]),
         roundness=np.max(dr) - np.min(dr)
     )
