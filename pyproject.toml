@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pylsci"
+version = "0.0.1"
+description = "Python implementation of Least Squares Reference Circle (LSCI) fitting and roundness evaluation."
+readme = "README.md"
+requires-python = ">=3.12"
+
+dependencies = [
+    "numpy",
+    "pytensor",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pylint",
+]
+
+[project.urls]
+Repository = "https://github.com/DSCF-1224/pylsci"
+
+[tool.setuptools]
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+include = ["pylsci*"]
