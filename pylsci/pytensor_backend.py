@@ -68,11 +68,17 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
     FittedCircle
         Fitted circle and evaluated roundness.
 
-    Notes
-    -----
-    When input lengths are statically known, mismatched lengths and fewer than
-    three points raise ``ValueError`` immediately. Otherwise, shape compatibility
-    is checked by PyTensor during graph execution.
+    Raises
+    ------
+    ValueError
+        If x and y have different lengths or fewer than
+        three points are provided (only when shapes are
+        statically known).
+    LinAlgError
+        If the normal equation matrix is singular. Because PyTensor
+        builds a symbolic computation graph, this error is raised when
+        the graph is evaluated (e.g. via `.eval()` or a compiled function),
+        rather than when `fit` is called.
     """
 
     size_x = x.type.shape[0]

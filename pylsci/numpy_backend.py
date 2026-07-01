@@ -67,6 +67,8 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     ValueError
         If x and y have different lengths or fewer than
         three points are provided.
+    numpy.linalg.LinAlgError
+        If the normal equation matrix is singular
     """
 
     size_x = np.size(x)
