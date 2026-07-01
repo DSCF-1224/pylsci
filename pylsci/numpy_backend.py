@@ -79,7 +79,7 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     if size_x < 3:
         raise ValueError("at least 3 points are required")
 
-    centroid = Center(x=np.average(x), y=np.average(y))
+    centroid = Center(x=np.mean(x), y=np.mean(y))
 
     x_offset = x - centroid.x
     y_offset = y - centroid.y
