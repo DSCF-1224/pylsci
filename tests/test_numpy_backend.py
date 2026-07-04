@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+from utils import atol
+
 from pylsci.numpy_backend import fit as fit_lsci
 
 
@@ -24,10 +26,15 @@ def test_fit_random_circle(seed):
         y=y + r * np.sin(theta)
     )
 
-    assert np.isclose(result.radius, r)
-    assert np.isclose(result.center.x, x)
-    assert np.isclose(result.center.y, y)
-    assert np.isclose(result.roundness, 0.0)
+    np.testing.assert_allclose(actual=result.radius, desired=r)
+    np.testing.assert_allclose(actual=result.center.x, desired=x)
+    np.testing.assert_allclose(actual=result.center.y, desired=y)
+
+    np.testing.assert_allclose(
+        actual=result.roundness,
+        desired=0.0,
+        atol=atol(result.roundness)
+    )
 
     result = fit_lsci(
         x=x + r * np.cos(theta)
@@ -49,10 +56,25 @@ def test_fit_unit_circle(n):
 
     result = fit_lsci(x, y)
 
-    assert np.isclose(result.radius, 1.0)
-    assert np.isclose(result.center.x, 0.0)
-    assert np.isclose(result.center.y, 0.0)
-    assert np.isclose(result.roundness, 0.0)
+    np.testing.assert_allclose(result.radius, 1.0)
+
+    np.testing.assert_allclose(
+        actual=result.center.x,
+        desired=0.0,
+        atol=atol(result.center.x)
+    )
+
+    np.testing.assert_allclose(
+        actual=result.center.y,
+        desired=0.0,
+        atol=atol(result.center.y)
+    )
+
+    np.testing.assert_allclose(
+        actual=result.roundness,
+        desired=0.0,
+        atol=atol(result.roundness)
+    )
 
 
 def test_mismatched_length():

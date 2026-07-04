@@ -43,7 +43,7 @@ def test_fit_produces_consistent_results(seed):
         y=pt.as_tensor(points_y)
     )
 
-    assert np.isclose(np_result.radius, pt_result.radius.eval())
-    assert np.isclose(np_result.center.x, pt_result.center.x.eval())
-    assert np.isclose(np_result.center.y, pt_result.center.y.eval())
-    assert np.isclose(np_result.roundness, pt_result.roundness.eval())
+    np.testing.assert_allclose(np_result.radius, pt_result.radius.eval())
+    np.testing.assert_allclose(np_result.center.x, pt_result.center.x.eval())
+    np.testing.assert_allclose(np_result.center.y, pt_result.center.y.eval())
+    np.testing.assert_allclose(np_result.roundness, pt_result.roundness.eval())
