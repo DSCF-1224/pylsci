@@ -3,6 +3,8 @@
 import numpy as np
 import pytest
 
+from utils import atol, sample_random_circle_parameters
+
 from pylsci.numpy_backend import fit as fit_lsci
 
 
@@ -12,27 +14,31 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    x = rng.uniform(low=-1.0, high=1.0)
-    y = rng.uniform(low=-1.0, high=1.0)
-    r = 10 ** rng.uniform(low=-1.0, high=1.0)
-    n = rng.integers(low=4, high=361)
+    center, r, n = sample_random_circle_parameters(rng)
 
     theta = 2 * np.pi * np.arange(n) / n
 
     result = fit_lsci(
-        x=x + r * np.cos(theta),
-        y=y + r * np.sin(theta)
+        x=center.x + r * np.cos(theta),
+        y=center.y + r * np.sin(theta)
     )
 
-    assert np.isclose(result.radius, r)
-    assert np.isclose(result.center.x, x)
-    assert np.isclose(result.center.y, y)
-    assert np.isclose(result.roundness, 0.0)
+    np.testing.assert_allclose(actual=result.radius, desired=r)
+    np.testing.assert_allclose(actual=result.center.x, desired=center.x)
+    np.testing.assert_allclose(actual=result.center.y, desired=center.y)
+
+    np.testing.assert_allclose(
+        actual=result.roundness,
+        desired=0.0,
+        atol=atol(result.roundness)
+    )
 
     result = fit_lsci(
-        x=x + r * np.cos(theta)
+        x=center.x
+        + r * np.cos(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=y + r * np.sin(theta)
+        y=center.y
+        + r * np.sin(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
     assert result.roundness > 0.0
@@ -49,10 +55,25 @@ def test_fit_unit_circle(n):
 
     result = fit_lsci(x, y)
 
-    assert np.isclose(result.radius, 1.0)
-    assert np.isclose(result.center.x, 0.0)
-    assert np.isclose(result.center.y, 0.0)
-    assert np.isclose(result.roundness, 0.0)
+    np.testing.assert_allclose(result.radius, 1.0)
+
+    np.testing.assert_allclose(
+        actual=result.center.x,
+        desired=0.0,
+        atol=atol(result.center.x)
+    )
+
+    np.testing.assert_allclose(
+        actual=result.center.y,
+        desired=0.0,
+        atol=atol(result.center.y)
+    )
+
+    np.testing.assert_allclose(
+        actual=result.roundness,
+        desired=0.0,
+        atol=atol(result.roundness)
+    )
 
 
 def test_mismatched_length():

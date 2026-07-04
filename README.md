@@ -64,3 +64,8 @@ print(result.center.y.eval())
 print(result.radius.eval())
 print(result.roundness.eval())
 ```
+
+## Algorithm
+
+See [Algorithm documentation](docs/algorithm.md)
+for the mathematical derivation and implementation details.

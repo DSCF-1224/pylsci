@@ -67,6 +67,8 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     ValueError
         If x and y have different lengths or fewer than
         three points are provided.
+    numpy.linalg.LinAlgError
+        If the normal equation matrix is singular
     """
 
     size_x = np.size(x)
@@ -77,20 +79,24 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     if size_x < 3:
         raise ValueError("at least 3 points are required")
 
-    matrix, vector = _construct_normal_equation(x, y)
+    centroid = Center(x=np.mean(x), y=np.mean(y))
+
+    x_offset = x - centroid.x
+    y_offset = y - centroid.y
+
+    matrix, vector = _construct_normal_equation(x=x_offset, y=y_offset)
 
     solution = np.linalg.solve(matrix, vector)
 
-    center = Center(x=0.5 * solution[0], y=0.5 * solution[1])
+    center_offset = Center(x=0.5 * solution[0], y=0.5 * solution[1])
 
-    center_r2 = (center.x * center.x) + (center.y * center.y)
-
-    dx = x - center.x
-    dy = y - center.y
+    dx = x_offset - center_offset.x
+    dy = y_offset - center_offset.y
     dr = np.sqrt((dx * dx) + (dy * dy))
 
     return FittedCircle(
-        center=center,
-        radius=np.sqrt(center_r2 + solution[2]),
+        center=Center(x=center_offset.x + centroid.x,
+                      y=center_offset.y + centroid.y),
+        radius=np.sqrt(center_offset.sum_of_squares() + solution[2]),
         roundness=np.max(dr) - np.min(dr)
     )

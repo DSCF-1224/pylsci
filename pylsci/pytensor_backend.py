@@ -68,11 +68,17 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
     FittedCircle
         Fitted circle and evaluated roundness.
 
-    Notes
-    -----
-    When input lengths are statically known, mismatched lengths and fewer than
-    three points raise ``ValueError`` immediately. Otherwise, shape compatibility
-    is checked by PyTensor during graph execution.
+    Raises
+    ------
+    ValueError
+        If x and y have different lengths or fewer than
+        three points are provided (only when shapes are
+        statically known).
+    LinAlgError
+        If the normal equation matrix is singular. Because PyTensor
+        builds a symbolic computation graph, this error is raised when
+        the graph is evaluated (e.g. via `.eval()` or a compiled function),
+        rather than when `fit` is called.
     """
 
     size_x = x.type.shape[0]
@@ -86,20 +92,24 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
         if size_x < 3:
             raise ValueError("at least 3 points are required")
 
-    matrix, vector = _construct_normal_equation(x, y)
+    centroid = Center(x=pt.mean(x), y=pt.mean(y))
+
+    x_offset = x - centroid.x
+    y_offset = y - centroid.y
+
+    matrix, vector = _construct_normal_equation(x=x_offset, y=y_offset)
 
     solution = pt.linalg.solve(matrix, vector)
 
-    center = Center(x=0.5 * solution[0], y=0.5 * solution[1])
+    center_offset = Center(x=0.5 * solution[0], y=0.5 * solution[1])
 
-    center_r2 = (center.x * center.x) + (center.y * center.y)
-
-    dx = x - center.x
-    dy = y - center.y
+    dx = x_offset - center_offset.x
+    dy = y_offset - center_offset.y
     dr = pt.sqrt((dx * dx) + (dy * dy))
 
     return FittedCircle(
-        center=center,
-        radius=pt.sqrt(center_r2 + solution[2]),
+        center=Center(x=center_offset.x + centroid.x,
+                      y=center_offset.y + centroid.y),
+        radius=pt.sqrt(center_offset.sum_of_squares() + solution[2]),
         roundness=pt.max(dr) - pt.min(dr)
     )

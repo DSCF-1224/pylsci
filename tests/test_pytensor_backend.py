@@ -5,6 +5,8 @@ import pytest
 
 from pytensor import tensor as pt
 
+from utils import atol, sample_random_circle_parameters
+
 from pylsci.pytensor_backend import fit as fit_lsci
 
 
@@ -14,10 +16,7 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    x = rng.uniform(low=-1.0, high=1.0)
-    y = rng.uniform(low=-1.0, high=1.0)
-    r = 10 ** rng.uniform(low=-1.0, high=1.0)
-    n = rng.integers(low=4, high=361)
+    center, r, n = sample_random_circle_parameters(rng)
 
     theta = 2 * np.pi * pt.arange(n) / float(n)
 
@@ -25,19 +24,27 @@ def test_fit_random_circle(seed):
     sin_theta = pt.sin(theta)
 
     result = fit_lsci(
-        x=x + r * cos_theta,
-        y=y + r * sin_theta
+        x=center.x + r * cos_theta,
+        y=center.y + r * sin_theta
     )
 
-    assert np.isclose(result.radius.eval(), r)
-    assert np.isclose(result.center.x.eval(), x)
-    assert np.isclose(result.center.y.eval(), y)
-    assert np.isclose(result.roundness.eval(), 0.0)
+    np.testing.assert_allclose(actual=result.radius.eval(), desired=r)
+    np.testing.assert_allclose(actual=result.center.x.eval(), desired=center.x)
+    np.testing.assert_allclose(actual=result.center.y.eval(), desired=center.y)
+
+    val_roundness = result.roundness.eval()
+    np.testing.assert_allclose(
+        actual=val_roundness,
+        desired=0.0,
+        atol=atol(x=val_roundness)
+    )
 
     result = fit_lsci(
-        x=x + r * cos_theta
+        x=center.x
+        + r * cos_theta
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=y + r * sin_theta
+        y=center.y
+        + r * sin_theta
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
 
@@ -55,10 +62,28 @@ def test_fit_unit_circle(n):
 
     result = fit_lsci(x, y)
 
-    assert np.isclose(result.radius.eval(), 1.0)
-    assert np.isclose(result.center.x.eval(), 0.0)
-    assert np.isclose(result.center.y.eval(), 0.0)
-    assert np.isclose(result.roundness.eval(), 0.0)
+    np.testing.assert_allclose(actual=result.radius.eval(), desired=1.0)
+
+    val_center_x = result.center.x.eval()
+    np.testing.assert_allclose(
+        actual=val_center_x,
+        desired=0.0,
+        atol=atol(val_center_x)
+    )
+
+    val_center_y = result.center.y.eval()
+    np.testing.assert_allclose(
+        actual=val_center_y,
+        desired=0.0,
+        atol=atol(val_center_y)
+    )
+
+    val_roundness = result.roundness.eval()
+    np.testing.assert_allclose(
+        actual=val_roundness,
+        desired=0.0,
+        atol=atol(val_roundness)
+    )
 
 
 def test_mismatched_length():
