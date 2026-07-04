@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from utils import atol
+from utils import atol, sample_random_circle_parameters
 
 from pylsci.numpy_backend import fit as fit_lsci
 
@@ -14,21 +14,18 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    x = rng.uniform(low=-1.0, high=1.0)
-    y = rng.uniform(low=-1.0, high=1.0)
-    r = 10 ** rng.uniform(low=-1.0, high=1.0)
-    n = rng.integers(low=4, high=361)
+    center, r, n = sample_random_circle_parameters(rng)
 
     theta = 2 * np.pi * np.arange(n) / n
 
     result = fit_lsci(
-        x=x + r * np.cos(theta),
-        y=y + r * np.sin(theta)
+        x=center.x + r * np.cos(theta),
+        y=center.y + r * np.sin(theta)
     )
 
     np.testing.assert_allclose(actual=result.radius, desired=r)
-    np.testing.assert_allclose(actual=result.center.x, desired=x)
-    np.testing.assert_allclose(actual=result.center.y, desired=y)
+    np.testing.assert_allclose(actual=result.center.x, desired=center.x)
+    np.testing.assert_allclose(actual=result.center.y, desired=center.y)
 
     np.testing.assert_allclose(
         actual=result.roundness,
@@ -37,9 +34,11 @@ def test_fit_random_circle(seed):
     )
 
     result = fit_lsci(
-        x=x + r * np.cos(theta)
+        x=center.x
+        + r * np.cos(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=y + r * np.sin(theta)
+        y=center.y
+        + r * np.sin(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
     assert result.roundness > 0.0

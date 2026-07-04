@@ -5,7 +5,7 @@ import pytest
 
 from pytensor import tensor as pt
 
-from utils import atol
+from utils import atol, sample_random_circle_parameters
 
 from pylsci.pytensor_backend import fit as fit_lsci
 
@@ -16,10 +16,7 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    x = rng.uniform(low=-1.0, high=1.0)
-    y = rng.uniform(low=-1.0, high=1.0)
-    r = 10 ** rng.uniform(low=-1.0, high=1.0)
-    n = rng.integers(low=4, high=361)
+    center, r, n = sample_random_circle_parameters(rng)
 
     theta = 2 * np.pi * pt.arange(n) / float(n)
 
@@ -27,13 +24,13 @@ def test_fit_random_circle(seed):
     sin_theta = pt.sin(theta)
 
     result = fit_lsci(
-        x=x + r * cos_theta,
-        y=y + r * sin_theta
+        x=center.x + r * cos_theta,
+        y=center.y + r * sin_theta
     )
 
     np.testing.assert_allclose(actual=result.radius.eval(), desired=r)
-    np.testing.assert_allclose(actual=result.center.x.eval(), desired=x)
-    np.testing.assert_allclose(actual=result.center.y.eval(), desired=y)
+    np.testing.assert_allclose(actual=result.center.x.eval(), desired=center.x)
+    np.testing.assert_allclose(actual=result.center.y.eval(), desired=center.y)
 
     val_roundness = result.roundness.eval()
     np.testing.assert_allclose(
@@ -43,9 +40,11 @@ def test_fit_random_circle(seed):
     )
 
     result = fit_lsci(
-        x=x + r * cos_theta
+        x=center.x
+        + r * cos_theta
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=y + r * sin_theta
+        y=center.y
+        + r * sin_theta
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
 
