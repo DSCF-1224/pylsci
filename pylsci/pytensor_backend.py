@@ -1,15 +1,19 @@
 """PyTensor implementation of LSCI circle fitting."""
 
-from pytensor import tensor as pt
-from pytensor.tensor import TensorVariable
+from typing import cast
+
+import pytensor.tensor.basic as ptb
+import pytensor.tensor.linalg as ptl
+import pytensor.tensor.math as ptm
+import pytensor.tensor.variable as ptv
 
 from .result import Center, FittedCircle
 
 
 def _construct_normal_equation(
-    x: TensorVariable,
-    y: TensorVariable
-) -> tuple[TensorVariable, TensorVariable]:
+    x: ptv.TensorVariable,
+    y: ptv.TensorVariable
+) -> tuple[ptv.TensorVariable, ptv.TensorVariable]:
     """
     Construct the normal equation for LSCI fitting.
 
@@ -31,28 +35,34 @@ def _construct_normal_equation(
 
     r2 = x2 + y2
 
-    sum_x1_y0 = pt.sum(x)
-    sum_x0_y1 = pt.sum(y)
-    sum_x1_y1 = pt.sum(x * y)
-    sum_x2_y0 = pt.sum(x2)
-    sum_x0_y2 = pt.sum(y2)
+    sum_x1_y0 = ptm.sum(x)
+    sum_x0_y1 = ptm.sum(y)
+    sum_x1_y1 = ptm.sum(x * y)
+    sum_x2_y0 = ptm.sum(x2)
+    sum_x0_y2 = ptm.sum(y2)
 
-    n = pt.cast(x.shape[0], x.dtype)
+    n = ptb.cast(x.shape[0], x.dtype)
 
-    matrix = pt.stack(
-        [
-            pt.stack([sum_x2_y0, sum_x1_y1, sum_x1_y0]),
-            pt.stack([sum_x1_y1, sum_x0_y2, sum_x0_y1]),
-            pt.stack([sum_x1_y0, sum_x0_y1, n])
-        ]
+    matrix = cast(
+        ptv.TensorVariable,
+        ptb.stack(
+            [
+                ptb.stack([sum_x2_y0, sum_x1_y1, sum_x1_y0]),
+                ptb.stack([sum_x1_y1, sum_x0_y2, sum_x0_y1]),
+                ptb.stack([sum_x1_y0, sum_x0_y1, n])
+            ]
+        )
     )
 
-    vector = pt.stack([pt.sum(x * r2), pt.sum(y * r2), pt.sum(r2)])
+    vector = cast(
+        ptv.TensorVariable,
+        ptb.stack([ptm.sum(x * r2), ptm.sum(y * r2), ptm.sum(r2)])
+    )
 
     return matrix, vector
 
 
-def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
+def fit(x: ptv.TensorVariable, y: ptv.TensorVariable) -> FittedCircle:
     """
     Fit a least-squares reference circle (LSCI) from a set of points.
 
@@ -92,24 +102,24 @@ def fit(x: TensorVariable, y: TensorVariable) -> FittedCircle:
         if size_x < 3:
             raise ValueError("at least 3 points are required")
 
-    centroid = Center(x=pt.mean(x), y=pt.mean(y))
+    centroid = Center(x=ptm.mean(x), y=ptm.mean(y))
 
     x_offset = x - centroid.x
     y_offset = y - centroid.y
 
     matrix, vector = _construct_normal_equation(x=x_offset, y=y_offset)
 
-    solution = pt.linalg.solve(matrix, vector)
+    solution = cast(ptv.TensorVariable, ptl.solve(matrix, vector))
 
     center_offset = Center(x=0.5 * solution[0], y=0.5 * solution[1])
 
     dx = x_offset - center_offset.x
     dy = y_offset - center_offset.y
-    dr = pt.sqrt((dx * dx) + (dy * dy))
+    dr = ptm.sqrt((dx * dx) + (dy * dy))
 
     return FittedCircle(
         center=Center(x=center_offset.x + centroid.x,
                       y=center_offset.y + centroid.y),
-        radius=pt.sqrt(center_offset.sum_of_squares() + solution[2]),
-        roundness=pt.max(dr) - pt.min(dr)
+        radius=ptm.sqrt(center_offset.sum_of_squares() + solution[2]),
+        roundness=ptm.max(dr) - ptm.min(dr)
     )
