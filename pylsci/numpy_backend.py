@@ -65,11 +65,15 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     Raises
     ------
     ValueError
-        If x and y have different lengths or fewer than
-        three points are provided.
+        If x or y is not 1-dimensional,
+        if x and y have different lengths or
+        fewer than three points are provided.
     numpy.linalg.LinAlgError
         If the normal equation matrix is singular
     """
+
+    if np.ndim(x) != 1 or np.ndim(y) != 1:
+        raise ValueError("x and y must be 1-dimensional")
 
     size_x = np.size(x)
 
