@@ -2,6 +2,8 @@
 
 from typing import cast
 
+import pytensor.raise_op as pr
+import pytensor.tensor as pt
 import pytensor.tensor.basic as ptb
 import pytensor.tensor.linalg as ptl
 import pytensor.tensor.math as ptm
@@ -9,10 +11,12 @@ import pytensor.tensor.variable as ptv
 
 from .result import Center, FittedCircle
 
+_assert_min_points = pr.Assert("at least 3 points are required")
+_assert_same_length = pr.Assert("x and y must have the same length")
+
 
 def _construct_normal_equation(
-    x: ptv.TensorVariable,
-    y: ptv.TensorVariable
+    x: ptv.TensorVariable, y: ptv.TensorVariable
 ) -> tuple[ptv.TensorVariable, ptv.TensorVariable]:
     """
     Construct the normal equation for LSCI fitting.
@@ -41,7 +45,7 @@ def _construct_normal_equation(
     sum_x2_y0 = ptm.sum(x2)
     sum_x0_y2 = ptm.sum(y2)
 
-    n = ptb.cast(x.shape[0], x.dtype)
+    n = ptb.cast(x.shape[0], x.type.dtype)
 
     matrix = cast(
         ptv.TensorVariable,
@@ -62,7 +66,66 @@ def _construct_normal_equation(
     return matrix, vector
 
 
-def fit(x: ptv.TensorVariable, y: ptv.TensorVariable) -> FittedCircle:
+def _validate_xy_shapes(
+    x: ptv.TensorVariable, y: ptv.TensorVariable
+) -> tuple[ptv.TensorVariable, ptv.TensorVariable]:
+    """
+    Validate x and y shapes.
+
+    x and y must each be 1-dimensional; since ndim is always
+    statically known in PyTensor, this is checked unconditionally.
+    Length mismatches and point-count violations raise ValueError
+    immediately when shapes are statically known; otherwise the
+    checks are embedded in the computation graph and only raise
+    when the graph is evaluated (e.g. via `.eval()` or a compiled
+    function).
+
+    Raises
+    ------
+    ValueError
+        If x or y is not 1-dimensional, if x or y have different
+        lengths, or if fewer than three points are provided
+        (the latter two only when shapes are statically known).
+    AssertionError
+        If x or y have different lengths, or if fewer than
+        three points are provided, and this could not be
+        determined statically (raised when the graph is
+        evaluated, via the embedded pytensor.raise_op.Assert
+        checks).
+    """
+
+    if x.type.ndim != 1 or y.type.ndim != 1:
+        raise ValueError("x and y must be 1-dimensional")
+
+    size_x = x.type.shape[0]
+    size_y = y.type.shape[0]
+
+    if (size_x is not None) and (size_y is not None):
+
+        if size_x != size_y:
+            raise ValueError("x and y must have the same length")
+
+        if size_x < 3:
+            raise ValueError("at least 3 points are required")
+
+        return x, y
+
+    length_x = x.shape[0]
+
+    x_checked = cast(
+        ptv.TensorVariable,
+        _assert_same_length(x, ptm.eq(length_x, y.shape[0]))
+    )
+
+    x_checked = cast(
+        ptv.TensorVariable,
+        _assert_min_points(x_checked, length_x >= 3)
+    )
+
+    return x_checked, y
+
+
+def fit(x: pt.TensorLike, y: pt.TensorLike) -> FittedCircle:
     """
     Fit a least-squares reference circle (LSCI) from a set of points.
 
@@ -91,21 +154,15 @@ def fit(x: ptv.TensorVariable, y: ptv.TensorVariable) -> FittedCircle:
         rather than when `fit` is called.
     """
 
-    size_x = x.type.shape[0]
-    size_y = y.type.shape[0]
+    x_tensor, y_tensor = _validate_xy_shapes(
+        x=ptb.as_tensor_variable(x),
+        y=ptb.as_tensor_variable(y)
+    )
 
-    if (size_x is not None) and (size_y is not None):
+    centroid = Center(x=ptm.mean(x_tensor), y=ptm.mean(y_tensor))
 
-        if size_x != size_y:
-            raise ValueError("x and y must have the same length")
-
-        if size_x < 3:
-            raise ValueError("at least 3 points are required")
-
-    centroid = Center(x=ptm.mean(x), y=ptm.mean(y))
-
-    x_offset = x - centroid.x
-    y_offset = y - centroid.y
+    x_offset = x_tensor - centroid.x
+    y_offset = y_tensor - centroid.y
 
     matrix, vector = _construct_normal_equation(x=x_offset, y=y_offset)
 
