@@ -5,7 +5,7 @@ import pytest
 
 from pytensor import tensor as pt
 
-from utils import atol, sample_random_circle_parameters
+import utils
 
 from pylsci.pytensor_backend import fit as fit_lsci
 
@@ -16,7 +16,7 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    center, r, n = sample_random_circle_parameters(rng)
+    center, r, n = utils.sample_random_circle_parameters(rng)
 
     theta = 2 * np.pi * pt.arange(n) / float(n)
 
@@ -36,7 +36,7 @@ def test_fit_random_circle(seed):
     np.testing.assert_allclose(
         actual=val_roundness,
         desired=0.0,
-        atol=atol(x=val_roundness)
+        atol=utils.atol(x=val_roundness)
     )
 
     result = fit_lsci(
@@ -68,21 +68,21 @@ def test_fit_unit_circle(n):
     np.testing.assert_allclose(
         actual=val_center_x,
         desired=0.0,
-        atol=atol(val_center_x)
+        atol=utils.atol(val_center_x)
     )
 
     val_center_y = result.center.y.eval()
     np.testing.assert_allclose(
         actual=val_center_y,
         desired=0.0,
-        atol=atol(val_center_y)
+        atol=utils.atol(val_center_y)
     )
 
     val_roundness = result.roundness.eval()
     np.testing.assert_allclose(
         actual=val_roundness,
         desired=0.0,
-        atol=atol(val_roundness)
+        atol=utils.atol(val_roundness)
     )
 
 
