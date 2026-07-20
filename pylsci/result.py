@@ -6,7 +6,7 @@ from typing import Any
 
 @dataclass(frozen=True)
 class Center:
-    """Center of a circle."""
+    """Center of a circle in 2D (xy) plane."""
 
     x: Any
     y: Any
@@ -17,9 +17,15 @@ class Center:
 
 
 @dataclass(frozen=True)
-class FittedCircle:
-    """Circle obtained from a fitting algorithm."""
+class Circle:
+    """A circle in 2D (xy) plane"""
 
     center: Center
     radius: Any
+
+
+@dataclass(frozen=True)
+class FittedCircle(Circle):
+    """Circle obtained from a fitting algorithm."""
+
     roundness: Any
