@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from ._messages import MSG_MIN_POINTS, MSG_NOT_1D, MSG_SAME_LENGTH
 from .result import Center, FittedCircle
 
 
@@ -73,15 +74,15 @@ def fit(x: np.ndarray, y: np.ndarray) -> FittedCircle:
     """
 
     if np.ndim(x) != 1 or np.ndim(y) != 1:
-        raise ValueError("x and y must be 1-dimensional")
+        raise ValueError(MSG_NOT_1D)
 
     size_x = np.size(x)
 
     if size_x != np.size(y):
-        raise ValueError("x and y must have the same length")
+        raise ValueError(MSG_SAME_LENGTH)
 
     if size_x < 3:
-        raise ValueError("at least 3 points are required")
+        raise ValueError(MSG_MIN_POINTS)
 
     centroid = Center(x=np.mean(x), y=np.mean(y))
 
