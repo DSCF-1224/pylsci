@@ -1,6 +1,7 @@
 """Tests for the PyTensor backend."""
 
 import numpy as np
+import pytensor
 import pytest
 
 from pytensor import tensor as pt
@@ -59,12 +60,18 @@ def test_fit_unit_circle(n):
 
     result = fit_lsci(x, y)
 
-    assert result.center.x.eval() == pytest.approx(0.0)
-    assert result.center.y.eval() == pytest.approx(0.0)
+    center_x, center_y, radius, roundness = \
+        pytensor.function(  # pyright: ignore[reportPrivateImportUsage]
+            [],
+            [result.center.x, result.center.y, result.radius, result.roundness]
+        )()
 
-    assert result.radius.eval() == pytest.approx(1.0)
+    assert center_x == pytest.approx(0.0)
+    assert center_y == pytest.approx(0.0)
 
-    assert result.roundness.eval() == pytest.approx(0.0)
+    assert radius == pytest.approx(1.0)
+
+    assert roundness == pytest.approx(0.0)
 
 
 def test_mismatched_length():
