@@ -48,32 +48,16 @@ def test_fit_random_circle(seed):
 def test_fit_unit_circle(n):
     """Fit points on a unit circle."""
 
-    theta = 2 * np.pi * np.arange(n) / n
-
-    x = np.cos(theta)
-    y = np.sin(theta)
+    x, y = utils.make_unit_circle_coords(n)
 
     result = fit_lsci(x, y)
 
-    np.testing.assert_allclose(result.radius, 1.0)
+    assert result.center.x == pytest.approx(0.0)
+    assert result.center.y == pytest.approx(0.0)
 
-    np.testing.assert_allclose(
-        actual=result.center.x,
-        desired=0.0,
-        atol=utils.atol(result.center.x)
-    )
+    assert result.radius == pytest.approx(1.0)
 
-    np.testing.assert_allclose(
-        actual=result.center.y,
-        desired=0.0,
-        atol=utils.atol(result.center.y)
-    )
-
-    np.testing.assert_allclose(
-        actual=result.roundness,
-        desired=0.0,
-        atol=utils.atol(result.roundness)
-    )
+    assert result.roundness == pytest.approx(0.0)
 
 
 def test_mismatched_length():

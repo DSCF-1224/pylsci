@@ -12,6 +12,25 @@ def atol(x, factor=100):
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
 
 
+def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Parameter
+    ---------
+    n
+        the number of points on the unit circle
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        x,y coordinates of the points on the unit circle.
+        The first point is (x,y)=(1,0)
+    """
+
+    theta = 2 * np.pi * np.arange(n) / n
+
+    return np.cos(theta), np.sin(theta)
+
+
 def sample_random_circle_parameters(rng: np.random.Generator) -> tuple[Center, float, np.integer]:
     """Sample a random circle and the number of points."""
 
