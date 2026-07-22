@@ -14,14 +14,13 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    desired_circle, n = utils.sample_random_circle(rng)
+    desired_circle, num_points = utils.sample_random_circle(rng)
 
-    theta = 2 * np.pi * np.arange(n) / n
-
-    result = fit_lsci(
-        x=desired_circle.center.x + desired_circle.radius * np.cos(theta),
-        y=desired_circle.center.y + desired_circle.radius * np.sin(theta)
+    x, y = utils.make_random_circle_coords(
+        circle=desired_circle, num_points=num_points
     )
+
+    result = fit_lsci(x=x, y=y)
 
     assert result.center.x == pytest.approx(desired_circle.center.x)
     assert result.center.y == pytest.approx(desired_circle.center.y)
@@ -30,14 +29,15 @@ def test_fit_random_circle(seed):
 
     assert result.roundness == pytest.approx(0.0)
 
-    result = fit_lsci(
-        x=desired_circle.center.x
-        + desired_circle.radius * np.cos(theta)
-        + 0.1 * desired_circle.radius * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=desired_circle.center.y
-        + desired_circle.radius * np.sin(theta)
-        + 0.1 * desired_circle.radius * rng.normal(loc=0.0, scale=1.0, size=n)
-    )
+    noisy_x = x + \
+        0.1 * desired_circle.radius * \
+        rng.normal(loc=0.0, scale=1.0, size=num_points)
+
+    noisy_y = y + \
+        0.1 * desired_circle.radius * \
+        rng.normal(loc=0.0, scale=1.0, size=num_points)
+
+    result = fit_lsci(x=noisy_x, y=noisy_y)
 
     assert result.roundness > 0.0
 

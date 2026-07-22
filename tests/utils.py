@@ -12,6 +12,24 @@ def atol(x, factor=100):
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
 
 
+def make_random_circle_coords(circle: Circle, num_points: np.integer) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Generate coordinates uniformly distributed on a circle.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        x,y coordinates on a random circle.
+    """
+
+    x_base, y_base = make_unit_circle_coords(int(num_points))
+
+    x = circle.radius * x_base + circle.center.x
+    y = circle.radius * y_base + circle.center.y
+
+    return x, y
+
+
 def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
     """
     Parameter
@@ -22,7 +40,7 @@ def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        x,y coordinates of the points on the unit circle.
+        x,y coordinates uniformly distributed on the unit circle.
         The first point is (x,y)=(1,0)
     """
 
