@@ -23,15 +23,12 @@ def test_fit_random_circle(seed):
         y=center.y + r * np.sin(theta)
     )
 
-    np.testing.assert_allclose(actual=result.radius, desired=r)
-    np.testing.assert_allclose(actual=result.center.x, desired=center.x)
-    np.testing.assert_allclose(actual=result.center.y, desired=center.y)
+    assert result.center.x == pytest.approx(center.x)
+    assert result.center.y == pytest.approx(center.y)
 
-    np.testing.assert_allclose(
-        actual=result.roundness,
-        desired=0.0,
-        atol=utils.atol(result.roundness)
-    )
+    assert result.radius == pytest.approx(r)
+
+    assert result.roundness == pytest.approx(0.0)
 
     result = fit_lsci(
         x=center.x
@@ -41,6 +38,7 @@ def test_fit_random_circle(seed):
         + r * np.sin(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
+
     assert result.roundness > 0.0
 
 
