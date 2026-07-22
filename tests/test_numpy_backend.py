@@ -14,29 +14,29 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    center, r, n = utils.sample_random_circle_parameters(rng)
+    desired_circle, n = utils.sample_random_circle(rng)
 
     theta = 2 * np.pi * np.arange(n) / n
 
     result = fit_lsci(
-        x=center.x + r * np.cos(theta),
-        y=center.y + r * np.sin(theta)
+        x=desired_circle.center.x + desired_circle.radius * np.cos(theta),
+        y=desired_circle.center.y + desired_circle.radius * np.sin(theta)
     )
 
-    assert result.center.x == pytest.approx(center.x)
-    assert result.center.y == pytest.approx(center.y)
+    assert result.center.x == pytest.approx(desired_circle.center.x)
+    assert result.center.y == pytest.approx(desired_circle.center.y)
 
-    assert result.radius == pytest.approx(r)
+    assert result.radius == pytest.approx(desired_circle.radius)
 
     assert result.roundness == pytest.approx(0.0)
 
     result = fit_lsci(
-        x=center.x
-        + r * np.cos(theta)
-        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
-        y=center.y
-        + r * np.sin(theta)
-        + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
+        x=desired_circle.center.x
+        + desired_circle.radius * np.cos(theta)
+        + 0.1 * desired_circle.radius * rng.normal(loc=0.0, scale=1.0, size=n),
+        y=desired_circle.center.y
+        + desired_circle.radius * np.sin(theta)
+        + 0.1 * desired_circle.radius * rng.normal(loc=0.0, scale=1.0, size=n)
     )
 
     assert result.roundness > 0.0

@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from pylsci.result import Center
+from pylsci.result import Center, Circle
 
 
 def atol(x, factor=100):
@@ -31,7 +31,7 @@ def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
     return np.cos(theta), np.sin(theta)
 
 
-def sample_random_circle_parameters(rng: np.random.Generator) -> tuple[Center, float, np.integer]:
+def sample_random_circle(rng: np.random.Generator) -> tuple[Circle, np.integer]:
     """Sample a random circle and the number of points."""
 
     center = Center(x=rng.uniform(low=-1.0, high=1.0),
@@ -41,4 +41,4 @@ def sample_random_circle_parameters(rng: np.random.Generator) -> tuple[Center, f
 
     num_points = rng.integers(low=4, high=361)
 
-    return center, radius, num_points
+    return Circle(center=center, radius=radius), num_points
