@@ -19,33 +19,32 @@ def test_fit_random_circle(seed):
 
     center, r, n = utils.sample_random_circle_parameters(rng)
 
-    theta = 2 * np.pi * pt.arange(n) / float(n)
-
-    cos_theta = pt.cos(theta)
-    sin_theta = pt.sin(theta)
+    theta = 2 * np.pi * np.arange(n) / n
 
     result = fit_lsci(
-        x=center.x + r * cos_theta,
-        y=center.y + r * sin_theta
+        x=center.x + r * np.cos(theta),
+        y=center.y + r * np.sin(theta)
     )
 
-    np.testing.assert_allclose(actual=result.radius.eval(), desired=r)
-    np.testing.assert_allclose(actual=result.center.x.eval(), desired=center.x)
-    np.testing.assert_allclose(actual=result.center.y.eval(), desired=center.y)
+    center_x, center_y, radius, roundness = \
+        pytensor.function(  # pyright: ignore[reportPrivateImportUsage]
+            [],
+            [result.center.x, result.center.y, result.radius, result.roundness]
+        )()
 
-    val_roundness = result.roundness.eval()
-    np.testing.assert_allclose(
-        actual=val_roundness,
-        desired=0.0,
-        atol=utils.atol(x=val_roundness)
-    )
+    assert center_x == pytest.approx(center.x)
+    assert center_y == pytest.approx(center.y)
+
+    assert radius == pytest.approx(r)
+
+    assert roundness == pytest.approx(0.0)
 
     result = fit_lsci(
         x=center.x
-        + r * cos_theta
+        + r * np.cos(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n),
         y=center.y
-        + r * sin_theta
+        + r * np.sin(theta)
         + 0.1 * r * rng.normal(loc=0.0, scale=1.0, size=n)
     )
 
