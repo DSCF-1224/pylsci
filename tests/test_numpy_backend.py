@@ -14,11 +14,7 @@ def test_fit_random_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    desired_circle, num_points = utils.sample_random_circle(rng)
-
-    x, y = utils.make_random_circle_coords(
-        circle=desired_circle, num_points=num_points
-    )
+    desired_circle, x, y = utils.make_random_circle_case(rng)
 
     result = fit_lsci(x=x, y=y)
 
@@ -31,11 +27,11 @@ def test_fit_random_circle(seed):
 
     noisy_x = x + \
         0.1 * desired_circle.radius * \
-        rng.normal(loc=0.0, scale=1.0, size=num_points)
+        rng.normal(loc=0.0, scale=1.0, size=x.size)
 
     noisy_y = y + \
         0.1 * desired_circle.radius * \
-        rng.normal(loc=0.0, scale=1.0, size=num_points)
+        rng.normal(loc=0.0, scale=1.0, size=y.size)
 
     result = fit_lsci(x=noisy_x, y=noisy_y)
 

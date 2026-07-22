@@ -12,6 +12,18 @@ def atol(x, factor=100):
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
 
 
+def make_random_circle_case(rng: np.random.Generator) -> tuple[Circle, np.ndarray, np.ndarray]:
+    """
+    Generate a random circle and coordinates on its circumference.
+    """
+
+    circle, num_points = sample_random_circle(rng)
+
+    x, y = make_random_circle_coords(circle=circle, num_points=num_points)
+
+    return circle, x, y
+
+
 def make_random_circle_coords(circle: Circle, num_points: np.integer) -> tuple[np.ndarray, np.ndarray]:
     """
     Generate coordinates uniformly distributed on a circle.
