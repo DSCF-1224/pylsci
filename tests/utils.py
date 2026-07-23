@@ -12,6 +12,26 @@ def atol(x, factor=100):
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
 
 
+def make_noisy_random_circle_case(
+        rng: np.random.Generator
+) -> tuple[Circle, np.ndarray, np.ndarray]:
+    """
+    Generate a random circle and noisy sample coordinates on its circumference.
+    """
+
+    circle, x_base, y_base = make_random_circle_case(rng)
+
+    noisy_x = x_base + \
+        0.1 * circle.radius * \
+        rng.normal(loc=0.0, scale=1.0, size=x_base.size)
+
+    noisy_y = y_base + \
+        0.1 * circle.radius * \
+        rng.normal(loc=0.0, scale=1.0, size=y_base.size)
+
+    return circle, noisy_x, noisy_y
+
+
 def make_random_circle_case(rng: np.random.Generator) -> tuple[Circle, np.ndarray, np.ndarray]:
     """
     Generate a random circle and coordinates on its circumference.

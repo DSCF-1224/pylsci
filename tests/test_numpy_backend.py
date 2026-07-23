@@ -74,15 +74,7 @@ def test_roundness_is_positive_for_noisy_circle(seed):
 
     rng = np.random.default_rng(seed)
 
-    desired_circle, x, y = utils.make_random_circle_case(rng)
-
-    noisy_x = x + \
-        0.1 * desired_circle.radius * \
-        rng.normal(loc=0.0, scale=1.0, size=x.size)
-
-    noisy_y = y + \
-        0.1 * desired_circle.radius * \
-        rng.normal(loc=0.0, scale=1.0, size=y.size)
+    _, noisy_x, noisy_y = utils.make_noisy_random_circle_case(rng)
 
     result = fit_lsci(x=noisy_x, y=noisy_y)
 
