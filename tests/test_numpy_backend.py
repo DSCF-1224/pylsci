@@ -43,20 +43,12 @@ def test_fit_unit_circle(n):
     assert result.roundness == pytest.approx(0.0)
 
 
-def test_mismatched_length():
+@pytest.mark.parametrize("x_len, y_len", utils.MISMATCHED_LENGTH_CASES)
+def test_mismatched_length(x_len: int, y_len: int):
     """Reject points with mismatched coordinate lengths."""
 
     with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
-        fit_lsci(
-            np.array([1.0, 0.0, -1.0, 0.0]),
-            np.array([0.0, 1.0, 0.0])
-        )
-
-    with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
-        fit_lsci(
-            np.array([0.0, 1.0, 0.0]),
-            np.array([1.0, 0.0, -1.0, 0.0])
-        )
+        fit_lsci(x=np.zeros(x_len), y=np.zeros(y_len))
 
 
 def test_requires_at_least_three_points():

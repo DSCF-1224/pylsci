@@ -5,6 +5,9 @@ import numpy as np
 from pylsci.result import Center, Circle
 
 
+MISMATCHED_LENGTH_CASES = [(3, 4), (4, 3)]
+
+
 def atol(x, factor=100):
     """Return an absolute tolerance based on the dtype of x."""
     # Work around a Pylint E1101 false positive with NumPy 2.4+.
