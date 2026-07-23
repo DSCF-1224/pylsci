@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from pylsci.result import Center
+from pylsci.result import Center, Circle
 
 
 def atol(x, factor=100):
@@ -10,6 +10,36 @@ def atol(x, factor=100):
     # Work around a Pylint E1101 false positive with NumPy 2.4+.
     # See https://github.com/pylint-dev/pylint/issues/10806.
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
+
+
+def make_random_circle_case(rng: np.random.Generator) -> tuple[Circle, np.ndarray, np.ndarray]:
+    """
+    Generate a random circle and coordinates on its circumference.
+    """
+
+    circle, num_points = sample_random_circle(rng)
+
+    x, y = make_random_circle_coords(circle=circle, num_points=num_points)
+
+    return circle, x, y
+
+
+def make_random_circle_coords(circle: Circle, num_points: np.integer) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Generate coordinates uniformly distributed on a circle.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        x,y coordinates on a random circle.
+    """
+
+    x_base, y_base = make_unit_circle_coords(int(num_points))
+
+    x = circle.radius * x_base + circle.center.x
+    y = circle.radius * y_base + circle.center.y
+
+    return x, y
 
 
 def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
@@ -22,7 +52,7 @@ def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        x,y coordinates of the points on the unit circle.
+        x,y coordinates uniformly distributed on the unit circle.
         The first point is (x,y)=(1,0)
     """
 
@@ -31,7 +61,7 @@ def make_unit_circle_coords(n: int) -> tuple[np.ndarray, np.ndarray]:
     return np.cos(theta), np.sin(theta)
 
 
-def sample_random_circle_parameters(rng: np.random.Generator) -> tuple[Center, float, np.integer]:
+def sample_random_circle(rng: np.random.Generator) -> tuple[Circle, np.integer]:
     """Sample a random circle and the number of points."""
 
     center = Center(x=rng.uniform(low=-1.0, high=1.0),
@@ -41,4 +71,4 @@ def sample_random_circle_parameters(rng: np.random.Generator) -> tuple[Center, f
 
     num_points = rng.integers(low=4, high=361)
 
-    return center, radius, num_points
+    return Circle(center=center, radius=radius), num_points
