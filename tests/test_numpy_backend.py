@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 
+import pylsci._messages as msg
 import utils
 
 from pylsci.numpy_backend import fit as fit_lsci
@@ -45,13 +46,13 @@ def test_fit_unit_circle(n):
 def test_mismatched_length():
     """Reject points with mismatched coordinate lengths."""
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
         fit_lsci(
             np.array([1.0, 0.0, -1.0, 0.0]),
             np.array([0.0, 1.0, 0.0])
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
         fit_lsci(
             np.array([0.0, 1.0, 0.0]),
             np.array([1.0, 0.0, -1.0, 0.0])
