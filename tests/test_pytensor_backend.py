@@ -6,6 +6,7 @@ import pytest
 
 from pytensor import tensor as pt
 
+import pylsci._messages as msg
 import utils
 
 from pylsci.pytensor_backend import fit as fit_lsci
@@ -57,20 +58,12 @@ def test_fit_unit_circle(n):
     assert roundness == pytest.approx(0.0)
 
 
-def test_mismatched_length():
+@pytest.mark.parametrize("x_len, y_len", utils.MISMATCHED_LENGTH_CASES)
+def test_mismatched_length(x_len: int, y_len: int):
     """Reject points with mismatched coordinate lengths."""
 
-    with pytest.raises(ValueError):
-        fit_lsci(
-            pt.as_tensor([1.0, 0.0, -1.0, 0.0]),
-            pt.as_tensor([0.0, 1.0, 0.0])
-        )
-
-    with pytest.raises(ValueError):
-        fit_lsci(
-            pt.as_tensor([0.0, 1.0, 0.0]),
-            pt.as_tensor([1.0, 0.0, -1.0, 0.0])
-        )
+    with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
+        fit_lsci(x=np.zeros(x_len), y=np.zeros(y_len))
 
 
 def test_requires_at_least_three_points():
