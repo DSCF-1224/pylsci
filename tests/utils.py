@@ -1,11 +1,19 @@
 """Test utilities."""
 
+import itertools
+
 import numpy as np
 
 from pylsci.result import Center, Circle
 
 
 MISMATCHED_LENGTH_CASES = [(3, 4), (4, 3)]
+
+NON_1D_SHAPE_CASES = [
+    (x_dim, y_dim)
+    for x_dim, y_dim in itertools.product([1, 2, 3], repeat=2)
+    if not (x_dim == 1 and y_dim == 1)
+]
 
 
 def atol(x, factor=100):
