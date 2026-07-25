@@ -51,14 +51,12 @@ def test_mismatched_length(x_len: int, y_len: int):
         fit_lsci(x=np.zeros(x_len), y=np.zeros(y_len))
 
 
-def test_requires_at_least_three_points():
+@pytest.mark.parametrize("num_points", range(0, 3))
+def test_requires_at_least_three_points(num_points: int):
     """Reject fewer than three points."""
 
-    with pytest.raises(ValueError):
-        fit_lsci(
-            np.array([1.0, 0.0]),
-            np.array([0.0, 1.0])
-        )
+    with pytest.raises(ValueError, match=msg.MSG_MIN_POINTS):
+        fit_lsci(x=np.zeros(num_points), y=np.zeros(num_points))
 
 
 @pytest.mark.parametrize("seed", range(0, 10))
