@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytensor
-import pytensor.tensor as pt
+import pytensor.tensor.variable as ptv
 import pytensor.tensor.type as ptt
 import pytest
 
@@ -86,6 +86,28 @@ def test_mismatched_length_static(x_len: int, y_len: int):
 
     with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
         fit_lsci(x=np.zeros(x_len), y=np.zeros(y_len))
+
+
+@pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
+def test_rejects_non_1d_input_dynamic(x_dim: int, y_dim: int):
+    """A non-1-dimensional x or y should raise ValueError immediately."""
+
+    def _make(dim: int, name: str) -> ptv.TensorVariable:
+
+        if dim == 1:
+            return ptt.vector(name)
+        if dim == 2:
+            return ptt.matrix(name)
+        if dim == 3:
+            return ptt.tensor3(name)
+
+        raise ValueError("`dim` must be less than 4")
+
+    x = _make(dim=x_dim, name="x")
+    y = _make(dim=y_dim, name="y")
+
+    with pytest.raises(ValueError, match=msg.MSG_NOT_1D):
+        fit_lsci(x=x, y=y)
 
 
 @pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
