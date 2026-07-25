@@ -2,9 +2,9 @@
 
 import numpy as np
 import pytensor
+import pytensor.tensor as pt
+import pytensor.tensor.type as ptt
 import pytest
-
-from pytensor import tensor as pt
 
 import pylsci._messages as msg
 import utils
@@ -59,7 +59,29 @@ def test_fit_unit_circle(n):
 
 
 @pytest.mark.parametrize("x_len, y_len", utils.MISMATCHED_LENGTH_CASES)
-def test_mismatched_length(x_len: int, y_len: int):
+def test_mismatched_length_dynamic(x_len: int, y_len: int):
+    """
+    When lengths are not statically known, a mismatch should not raise
+    at fit() call time, but should raise when the graph is evaluated.
+    """
+
+    x = ptt.vector("x")
+    y = ptt.vector("y")
+
+    # should not raise here
+    result = fit_lsci(x=x, y=y)
+
+    fn = pytensor.function(  # pyright: ignore[reportPrivateImportUsage]
+        [x, y],
+        [result.center.x, result.radius, result.roundness]
+    )
+
+    with pytest.raises(AssertionError, match="must have the same length"):
+        fn(np.zeros(x_len), np.zeros(y_len))
+
+
+@pytest.mark.parametrize("x_len, y_len", utils.MISMATCHED_LENGTH_CASES)
+def test_mismatched_length_static(x_len: int, y_len: int):
     """Reject points with mismatched coordinate lengths."""
 
     with pytest.raises(ValueError, match=msg.MSG_SAME_LENGTH):
