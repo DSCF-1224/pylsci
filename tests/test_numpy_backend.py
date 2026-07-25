@@ -51,6 +51,17 @@ def test_mismatched_length(x_len: int, y_len: int):
         fit_lsci(x=np.zeros(x_len), y=np.zeros(y_len))
 
 
+@pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
+def test_rejects_non_1d_input(x_dim: int, y_dim: int):
+    """A non-1-dimensional x or y should raise ValueError immediately."""
+
+    with pytest.raises(ValueError, match=msg.MSG_NOT_1D):
+        fit_lsci(
+            x=np.zeros((3,) * x_dim),
+            y=np.zeros((3,) * y_dim)
+        )
+
+
 @pytest.mark.parametrize("num_points", range(0, 3))
 def test_requires_at_least_three_points(num_points: int):
     """Reject fewer than three points."""
