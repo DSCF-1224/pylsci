@@ -6,20 +6,18 @@ Python implementation of Least Squares Reference Circle (LSCI) fitting and round
 
 ## Installation
 
+`pylsci` is not published to PyPI. Install directly from this repository.
+
 ### pip
 
 ```bash
-git clone https://github.com/DSCF-1224/pylsci.git
-cd pylsci
-pip install .
+pip install "git+https://github.com/DSCF-1224/pylsci.git"
 ```
 
 ### uv
 
 ```bash
-git clone https://github.com/DSCF-1224/pylsci.git
-cd pylsci
-uv sync
+uv add "git+https://github.com/DSCF-1224/pylsci.git"
 ```
 
 
