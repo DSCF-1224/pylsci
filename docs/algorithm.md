@@ -267,6 +267,15 @@ followed by solving a fixed-size $ 3\times3 $ linear system.
 - The NumPy backend performs all computations eagerly.
 - The PyTensor backend constructs symbolic expressions that can be evaluated later.
 
+## Current limitations
+
+Both backends currently accept only 1-dimensional `x` and `y`, representing a single point set per call.
+Both backends validate this explicitly (the NumPy backend in `fit`; the PyTensor backend in `_validate_xy_shapes`).
+Batched fitting (e.g. fitting many point sets simultaneously, as would arise in hierarchical PyMC models) is not yet supported.
+Supporting batched fitting would require generalizing the current implementations so that all reductions (means, covariance terms, and the subsequent least-squares computation) operate along the point axis while preserving leading batch dimensions.
+PyTensor's `Blockwise` mechanism is well suited for this style of computation.
+Batched fitting is left as future work.
+
 ## References
 
 - ISO 12181-1: Geometrical product specifications (GPS) — Roundness
