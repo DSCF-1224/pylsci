@@ -1,9 +1,9 @@
 """Tests for consistency between the NumPy and PyTensor backends."""
 
 import numpy as np
+import pytensor
 import pytest
-
-from pytensor import tensor as pt
+import utils
 
 from pylsci import numpy_backend, pytensor_backend
 
@@ -14,36 +14,25 @@ def test_fit_produces_consistent_results(seed):
 
     rng = np.random.default_rng(seed)
 
-    num_points = rng.integers(low=4, high=361)
+    _, x, y = utils.make_noisy_random_circle_case(rng)
 
-    center_x = rng.uniform(low=-1.0, high=1.0)
-    center_y = rng.uniform(low=-1.0, high=1.0)
+    np_result = numpy_backend.fit(x=x, y=y)
+    pt_result = pytensor_backend.fit(x=x, y=y)
 
-    radius = 10 ** rng.uniform(low=-1.0, high=1.0)
+    pt_center_x, pt_center_y, pt_radius, pt_roundness = \
+        pytensor.function(  # pyright: ignore[reportPrivateImportUsage]
+            [],
+            [
+                pt_result.center.x,
+                pt_result.center.y,
+                pt_result.radius,
+                pt_result.roundness
+            ]
+        )()
 
-    theta = np.linspace(
-        start=0.0,
-        stop=2 * np.pi,
-        num=num_points,
-        endpoint=False
-    )
+    assert pt_center_x == pytest.approx(np_result.center.x)
+    assert pt_center_y == pytest.approx(np_result.center.y)
 
-    points_x = center_x + (radius * np.cos(theta))
-    points_y = center_y + (radius * np.sin(theta))
+    assert pt_radius == pytest.approx(np_result.radius)
 
-    points_x += (0.01 * radius
-                 * rng.normal(loc=0.0, scale=1.0, size=num_points))
-    points_y += (0.01 * radius
-                 * rng.normal(loc=0.0, scale=1.0, size=num_points))
-
-    np_result = numpy_backend.fit(x=points_x, y=points_y)
-
-    pt_result = pytensor_backend.fit(
-        x=pt.as_tensor(points_x),
-        y=pt.as_tensor(points_y)
-    )
-
-    np.testing.assert_allclose(np_result.radius, pt_result.radius.eval())
-    np.testing.assert_allclose(np_result.center.x, pt_result.center.x.eval())
-    np.testing.assert_allclose(np_result.center.y, pt_result.center.y.eval())
-    np.testing.assert_allclose(np_result.roundness, pt_result.roundness.eval())
+    assert pt_roundness == pytest.approx(np_result.roundness)
