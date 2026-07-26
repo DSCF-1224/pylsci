@@ -23,6 +23,9 @@ uv add "git+https://github.com/DSCF-1224/pylsci.git"
 
 ## Usage
 
+Inputs must be 1-dimensional.
+See [Algorithm documentation](docs/algorithm.md#current-limitations) for details.
+
 ### `NumPy` backend
 
 ```python
@@ -62,6 +65,10 @@ print(result.center.y.eval())
 print(result.radius.eval())
 print(result.roundness.eval())
 ```
+
+`center`, `radius`, and `roundness` are symbolic ([`TensorVariable`](https://pytensor.readthedocs.io/en/stable/library/tensor/basic.html#pytensor.tensor.TensorVariable));
+call [`.eval()`](https://pytensor.readthedocs.io/en/stable/library/graph/graph.html#pytensor.graph.basic.Variable.eval) to obtain numeric values, or use [`pytensor.function`](https://pytensor.readthedocs.io/en/stable/library/compile/function.html#pytensor.compile.maker.function) to compile
+a reusable function.
 
 ## Algorithm
 
