@@ -164,3 +164,19 @@ def test_roundness_is_positive_for_noisy_circle(seed):
     result = fit_lsci(x=noisy_x, y=noisy_y)
 
     assert result.roundness.eval() > 0.0
+
+
+@pytest.mark.parametrize("seed", range(0, 10))
+def test_roundness_matches_known_value(seed):
+    """
+    For a point set with a known roundness by construction,
+    the fitted roundness should match.
+    """
+
+    rng = np.random.default_rng(seed)
+
+    desired_roundness, x, y = utils.make_known_roundness_case(rng)
+
+    result = fit_lsci(x=x, y=y)
+
+    assert result.roundness.eval() == pytest.approx(desired_roundness)
