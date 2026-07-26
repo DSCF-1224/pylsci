@@ -23,6 +23,34 @@ def atol(x, factor=100):
     return factor * getattr(np.finfo(np.asarray(x).dtype), 'eps')
 
 
+def make_known_roundness_case(
+        rng: np.random.Generator
+) -> tuple[float, np.ndarray, np.ndarray]:
+    """
+    Generate a point set with a known roundness.
+
+    Samples are placed on two concentric circles with radii
+    r ± roundness / 2, so the expected roundness is known exactly.
+    """
+
+    base_radius = 10 ** rng.uniform(low=-1.0, high=1.0)
+
+    # Number of samples on each circle.
+    num_points = rng.integers(low=4, high=181)
+
+    x_base, y_base = make_unit_circle_coords(int(num_points))
+
+    roundness = rng.uniform(low=0.0, high=0.5 * base_radius)
+
+    outer_radius = base_radius + 0.5 * roundness
+    inner_radius = base_radius - 0.5 * roundness
+
+    x = np.concatenate([outer_radius * x_base, inner_radius * x_base])
+    y = np.concatenate([outer_radius * y_base, inner_radius * y_base])
+
+    return roundness, x, y
+
+
 def make_noisy_random_circle_case(
         rng: np.random.Generator
 ) -> tuple[Circle, np.ndarray, np.ndarray]:
