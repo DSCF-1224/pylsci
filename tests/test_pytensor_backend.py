@@ -89,8 +89,25 @@ def test_mismatched_length_static(x_len: int, y_len: int):
 
 
 @pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
-def test_rejects_non_1d_input_dynamic(x_dim: int, y_dim: int):
-    """A non-1-dimensional x or y should raise ValueError immediately."""
+def test_rejects_non_1d_input_constant(x_dim: int, y_dim: int):
+    """
+    A non-1-dimensional x or y should raise ValueError immediately,
+    when given as NumPy arrays (converted internally to TensorConstant).
+    """
+
+    with pytest.raises(ValueError, match=msg.MSG_NOT_1D):
+        fit_lsci(
+            x=np.zeros((3,) * x_dim),
+            y=np.zeros((3,) * y_dim)
+        )
+
+
+@pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
+def test_rejects_non_1d_input_symbolic(x_dim: int, y_dim: int):
+    """
+    A non-1-dimensional x or y should raise ValueError immediately,
+    when given as symbolic (shapeless) PyTensor variables.
+    """
 
     def _make(dim: int, name: str) -> ptv.TensorVariable:
 
@@ -108,17 +125,6 @@ def test_rejects_non_1d_input_dynamic(x_dim: int, y_dim: int):
 
     with pytest.raises(ValueError, match=msg.MSG_NOT_1D):
         fit_lsci(x=x, y=y)
-
-
-@pytest.mark.parametrize("x_dim, y_dim", utils.NON_1D_SHAPE_CASES)
-def test_rejects_non_1d_input_static(x_dim: int, y_dim: int):
-    """A non-1-dimensional x or y should raise ValueError immediately."""
-
-    with pytest.raises(ValueError, match=msg.MSG_NOT_1D):
-        fit_lsci(
-            x=np.zeros((3,) * x_dim),
-            y=np.zeros((3,) * y_dim)
-        )
 
 
 # pylint: disable=duplicate-code
